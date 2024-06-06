@@ -68,3 +68,17 @@ export function uploadImage({ file }) {
     return response.json();
   });
 }
+// это в конец файла api.js
+export async function toggleLike(postId, token) {
+  const response = await fetch(`${postsHost}/${postId}/toggle-like`, {
+    method: 'POST',
+    headers: {
+      Authorization: token,
+    },
+  });
+  if (!response.ok) {
+    throw new Error('Ошибка при установке лайка');
+  }
+  return response.json();
+}
+
