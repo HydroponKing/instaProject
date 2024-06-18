@@ -1,12 +1,10 @@
 import { USER_POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
 import { getPosts, toggleLike } from "../api.js";
-import { goToPage } from "../index.js";
+import { goToPage, posts } from "../index.js";
 
-export async function renderPostsPageComponent({ appEl }) {
-  try {
-    const token = localStorage.getItem('token');
-    const posts = await getPosts({ token });
+export  function renderPostsPageComponent({ appEl }) 
+ {
     console.log("Актуальный список постов:", posts);
 
     const formatDistanceToNow = (date) => {
@@ -76,7 +74,5 @@ export async function renderPostsPageComponent({ appEl }) {
       });
     });
 
-  } catch (error) {
-    console.error("Ошибка при получении постов:", error);
-  }
+   
 }
