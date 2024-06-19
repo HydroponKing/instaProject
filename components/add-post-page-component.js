@@ -45,8 +45,13 @@ export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
     }
 
     document.getElementById("add-button").addEventListener("click", () => {
+      const description = document.querySelector(".textarea").value.trim();
+      if (!description || !imageUrl.trim()) {
+        alert("Добавьте изображение или текст");
+        return;
+      }
       onAddPostClick({
-        description: document.querySelector(".textarea").value,
+        description,
         imageUrl
       });
     });
