@@ -1,7 +1,7 @@
 // Замени на свой, чтобы получить независимый от других набор данных.
 
 // "боевая" версия инстапро лежит в ключе prod
-const personalKey = "prod";
+const personalKey = "pro228";
 const baseHost = "https://webdev-hw-api.vercel.app";
 const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`;
 
@@ -44,6 +44,32 @@ export function getPosts({ token }) {
     .then((data) => {
       return data.posts;
     });
+}
+
+export async function likePost(postId, token) {
+  const response = await fetch(`${postsHost}/${postId}/like`, {
+    method: 'POST',
+    headers: {
+      'Authorization': token
+    }
+  });
+  if (!response.ok) {
+    throw new Error('Ошибка при установке лайка');
+  }
+  return response.json();
+}
+ 
+export async function dislikePost(postId, token) {
+  const response = await fetch(`${postsHost}/${postId}/dislike`, {
+    method: 'POST',
+    headers: {
+      'Authorization': token
+    }
+  });
+  if (!response.ok) {
+    throw new Error('Ошибка при удалении лайка');
+  }
+  return response.json();
 }
 
 export async function getUserPosts({ userId, token }) {
