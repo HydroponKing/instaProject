@@ -1,11 +1,12 @@
 import { USER_POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
-import { getPosts, toggleLike } from "../api.js";
-import { goToPage, posts } from "../index.js";
+import { getPosts, likePost, dislikePost } from "../api.js";
+import { goToPage, getToken } from "../index.js";
 
-export  function renderPostsPageComponent({ appEl }) 
- {
-    console.log("Актуальный список постов:", posts);
+export async function renderPostsPageComponent({ appEl }) {
+  try {
+    const token = getToken();
+    const posts = await getPosts({ token });
 
     const formatDistanceToNow = (date) => {
       const now = new Date();
@@ -32,7 +33,7 @@ export  function renderPostsPageComponent({ appEl })
             <img src="${post.isLiked ? './assets/images/like-active.svg' : './assets/images/like-not-active.svg'}">
           </button>
           <p class="post-likes-text">
-            Нравится: <strong>${post.likes}</strong>
+            Нравится: <strong>${post.likes.length}</strong>
           </p>
         </div>
         <p class="post-text">
@@ -69,10 +70,20 @@ export  function renderPostsPageComponent({ appEl })
     document.querySelectorAll(".like-button").forEach(likeButton => {
       likeButton.addEventListener("click", async () => {
         const postId = likeButton.dataset.postId;
-        await toggleLike(postId, token);
-        renderPostsPageComponent({ appEl });
+        const post = posts.find(p => p.id === postId);
+
+        if (post.isLiked) {
+          await dislikePost(postId, token);
+        } else {
+          await likePost(postId, token);
+        }
+
+        const updatedPosts = await getPosts({ token });
+        renderPostsPageComponent({ appEl, posts: updatedPosts });
       });
     });
 
-   
+  } catch (error) {
+    console.error("Ошибка при получении постов:", error);
+  }
 }
