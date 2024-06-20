@@ -1,22 +1,20 @@
-import { USER_POSTS_PAGE } from "../routes.js";
+import { USER_POSTS_PAGE, POSTS_PAGE } from "../routes.js"; // Добавлен импорт POSTS_PAGE
 import { renderHeaderComponent } from "./header-component.js";
-import { getPosts, likePost, dislikePost } from "../api.js";
-import { goToPage, getToken } from "../index.js";
+import { getPosts, toggleLike } from "../api.js";
+import { goToPage, posts, getToken } from "../index.js"; // Импорт функции getToken
 
-export async function renderPostsPageComponent({ appEl }) {
-  try {
-    const token = getToken();
-    const posts = await getPosts({ token });
+export function renderPostsPageComponent({ appEl }) {
+    console.log("Актуальный список постов:", posts);
 
     const formatDistanceToNow = (date) => {
-      const now = new Date();
-      const diff = Math.abs(now - date);
-      const minutes = Math.floor(diff / 60000);
-      if (minutes < 60) return `${minutes} минут назад`;
-      const hours = Math.floor(minutes / 60);
-      if (hours < 24) return `${hours} часов назад`;
-      const days = Math.floor(hours / 24);
-      return `${days} дней назад`;
+        const now = new Date();
+        const diff = Math.abs(now - date);
+        const minutes = Math.floor(diff / 60000);
+        if (minutes < 60) return `${minutes} минут назад`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours} часов назад`;
+        const days = Math.floor(hours / 24);
+        return `${days} дней назад`;
     };
 
     const postsHtml = posts.map(post => `
@@ -70,20 +68,9 @@ export async function renderPostsPageComponent({ appEl }) {
     document.querySelectorAll(".like-button").forEach(likeButton => {
       likeButton.addEventListener("click", async () => {
         const postId = likeButton.dataset.postId;
-        const post = posts.find(p => p.id === postId);
-
-        if (post.isLiked) {
-          await dislikePost(postId, token);
-        } else {
-          await likePost(postId, token);
-        }
-
-        const updatedPosts = await getPosts({ token });
-        renderPostsPageComponent({ appEl, posts: updatedPosts });
+        const post = posts.find(post => post.id === postId);
+        await toggleLike(postId, post.isLiked, getToken());
+        goToPage(POSTS_PAGE); // Обновляем страницу после изменения лайка
       });
     });
-
-  } catch (error) {
-    console.error("Ошибка при получении постов:", error);
-  }
 }

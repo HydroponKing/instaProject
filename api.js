@@ -1,3 +1,6 @@
+// Замени на свой, чтобы получить независимый от других набор данных.
+
+// "боевая" версия инстапро лежит в ключе prod
 const personalKey = "pro228";
 const baseHost = "https://webdev-hw-api.vercel.app";
 const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`;
@@ -57,53 +60,12 @@ export async function getUserPosts({ userId, token }) {
   return data.posts;
 }
 
-export async function likePost(postId, token) {
-  const response = await fetch(`${postsHost}/${postId}/like`, {
-    method: 'POST',
-    headers: {
-      Authorization: token,
-    }
-  });
-  if (!response.ok) {
-    throw new Error('Ошибка при установке лайка');
-  }
-  return response.json();
-}
 
-export async function dislikePost(postId, token) {
-  const response = await fetch(`${postsHost}/${postId}/dislike`, {
-    method: 'POST',
-    headers: {
-      Authorization: token,
-    }
-  });
-  if (!response.ok) {
-    throw new Error('Ошибка при удалении лайка');
-  }
-  return response.json();
-}
 
-export function uploadImage({ file }) {
-  const data = new FormData();
-  data.append("file", file);
-
-  return fetch(baseHost + "/api/upload/image", {
-    method: "POST",
-    body: data,
-  }).then((response) => {
-    if (!response.ok) {
-      throw new Error('Ошибка при загрузке изображения');
-    }
-    return response.json();
-  });
-}
-
+// https://github.com/GlebkaF/webdev-hw-api/blob/main/pages/api/user/README.md#%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D1%8C%D1%81%D1%8F
 export function registerUser({ login, password, name, imageUrl }) {
   return fetch(baseHost + "/api/user", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify({
       login,
       password,
@@ -121,9 +83,6 @@ export function registerUser({ login, password, name, imageUrl }) {
 export function loginUser({ login, password }) {
   return fetch(baseHost + "/api/user/login", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify({
       login,
       password,
@@ -136,15 +95,31 @@ export function loginUser({ login, password }) {
   });
 }
 
-export async function toggleLike(postId, token) {
-  const response = await fetch(`${postsHost}/${postId}/toggle-like`, {
+// Загружает картинку в облако, возвращает url загруженной картинки
+export function uploadImage({ file }) {
+  const data = new FormData();
+  data.append("file", file);
+
+  return fetch(baseHost + "/api/upload/image", {
+    method: "POST",
+    body: data,
+  }).then((response) => {
+    return response.json();
+  });
+}
+// это в конец файла api.js
+export async function toggleLike(postId, isLiked, token) {
+  const url = `${postsHost}/${postId}/${isLiked ? 'dislike' : 'like'}`;
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
       Authorization: token,
     },
   });
   if (!response.ok) {
-    throw new Error('Ошибка при установке лайка');
+    throw new Error('Ошибка при изменении лайка');
   }
   return response.json();
 }
+
+

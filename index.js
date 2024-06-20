@@ -1,4 +1,4 @@
-import { addPosts, getPosts, getUserPosts, likePost, dislikePost } from "./api.js";
+import { addPosts, getPosts, getUserPosts, toggleLike } from "./api.js";
 import { renderAddPostPageComponent } from "./components/add-post-page-component.js";
 import { renderAuthPageComponent } from "./components/auth-page-component.js";
 import {
@@ -15,7 +15,7 @@ import {
   removeUserFromLocalStorage,
   saveUserToLocalStorage,
 } from "./helpers.js";
-import { renderHeaderComponent } from "./components/header-component.js";
+import { renderHeaderComponent } from "./components/header-component.js"; // Импорт функции для рендеринга заголовка
 
 export let user = getUserFromLocalStorage();
 export let page = null;
@@ -32,6 +32,9 @@ export const logout = () => {
   goToPage(POSTS_PAGE);
 };
 
+/**
+ * Включает страницу приложения
+ */
 export const goToPage = (newPage, data) => {
   if (
     [
@@ -43,6 +46,7 @@ export const goToPage = (newPage, data) => {
     ].includes(newPage)
   ) {
     if (newPage === ADD_POSTS_PAGE) {
+      // Если пользователь не авторизован, то отправляем его на авторизацию перед добавлением поста
       page = user ? ADD_POSTS_PAGE : AUTH_PAGE;
       return renderApp();
     }
@@ -55,6 +59,7 @@ export const goToPage = (newPage, data) => {
         .then((newPosts) => {
           page = POSTS_PAGE;
           posts = newPosts;
+          console.log("Posts loaded:", posts); // Логирование постов
           renderApp();
         })
         .catch((error) => {
@@ -64,6 +69,7 @@ export const goToPage = (newPage, data) => {
     }
 
     if (newPage === USER_POSTS_PAGE) {
+      console.log("Открываю страницу пользователя: ", data.userId);
       page = LOADING_PAGE;
       renderApp();
 
@@ -71,6 +77,7 @@ export const goToPage = (newPage, data) => {
         .then((userPosts) => {
           page = USER_POSTS_PAGE;
           posts = userPosts;
+          console.log("User posts loaded:", posts); // Логирование постов пользователя
           renderApp();
         })
         .catch((error) => {
@@ -81,6 +88,7 @@ export const goToPage = (newPage, data) => {
 
     page = newPage;
     renderApp();
+
     return;
   }
 
@@ -114,11 +122,10 @@ const renderApp = () => {
     return renderAddPostPageComponent({
       appEl,
       onAddPostClick({ description, imageUrl }) {
-        // TODO: реализовать добавление поста в API
-   addPosts({imageUrl, description, token: getToken()})
-   .then(() => {
-    goToPage(POSTS_PAGE);
-  })
+        addPosts({ imageUrl, description, token: getToken() })
+          .then(() => {
+            goToPage(POSTS_PAGE);
+          });
       },
     });
   }
@@ -215,18 +222,12 @@ const renderUserPostsPageComponent = ({ appEl, posts }) => {
   document.querySelectorAll(".like-button").forEach(likeButton => {
     likeButton.addEventListener("click", async () => {
       const postId = likeButton.dataset.postId;
-      const post = posts.find(p => p.id === postId);
-
-      if (post.isLiked) {
-        await dislikePost(postId, getToken());
-      } else {
-        await likePost(postId, getToken());
-      }
-      
-      const updatedPosts = await getUserPosts({ userId: post.user.id, token: getToken() });
-      renderUserPostsPageComponent({ appEl, posts: updatedPosts });
+      const post = posts.find(post => post.id === postId);
+      await toggleLike(postId, post.isLiked, getToken());
+      renderUserPostsPageComponent({ appEl, posts }); // Обновляем страницу после изменения лайка
     });
   });
 };
+
 
 goToPage(POSTS_PAGE);
