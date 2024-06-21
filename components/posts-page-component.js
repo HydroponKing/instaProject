@@ -1,7 +1,7 @@
-import { USER_POSTS_PAGE, POSTS_PAGE } from "../routes.js"; // Добавлен импорт POSTS_PAGE
+import { USER_POSTS_PAGE, POSTS_PAGE, AUTH_PAGE } from "../routes.js"; // Добавлен импорт POSTS_PAGE
 import { renderHeaderComponent } from "./header-component.js";
 import { getPosts, toggleLike } from "../api.js";
-import { goToPage, posts, getToken } from "../index.js"; // Импорт функции getToken
+import { goToPage, posts, getToken, user } from "../index.js"; // Импорт функции getToken
 
 export function renderPostsPageComponent({ appEl }) {
     console.log("Актуальный список постов:", posts);
@@ -67,6 +67,9 @@ export function renderPostsPageComponent({ appEl }) {
 
     document.querySelectorAll(".like-button").forEach(likeButton => {
       likeButton.addEventListener("click", async () => {
+        if (!user) {
+          return goToPage(AUTH_PAGE); // Перенаправление на страницу авторизации
+        }
         const postId = likeButton.dataset.postId;
         const post = posts.find(post => post.id === postId);
         await toggleLike(postId, post.isLiked, getToken());
