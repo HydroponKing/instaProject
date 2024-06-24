@@ -21,7 +21,7 @@ export function renderPostsPageComponent({ appEl }) {
       <li class="post">
         <div class="post-header" data-user-id="${post.user.id}">
           <img src="${post.user.imageUrl}" class="post-header__user-image">
-          <p class="post-header__user-name">${post.user.name}</p>
+          <p class="post-header__user-name">${post.user.name.replace(/<.*?>/g, '')}</p>
         </div>
         <div class="post-image-container">
           <img class="post-image" src="${post.imageUrl}">
@@ -35,14 +35,15 @@ export function renderPostsPageComponent({ appEl }) {
           </p>
         </div>
         <p class="post-text">
-          <span class="user-name">${post.user.name}</span>
-          ${post.description}
+          <span class="user-name">${post.user.name.replace(/<.*?>/g, '')}</span>
+          ${post.description.replace(/<.*?>/g, '')}
         </p>
         <p class="post-date">
           ${formatDistanceToNow(new Date(post.createdAt))}
         </p>
       </li>
     `).join('');
+    
 
     const appHtml = `
       <div class="page-container">

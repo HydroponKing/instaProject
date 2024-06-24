@@ -45,7 +45,7 @@ export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
     }
 
     document.getElementById("add-button").addEventListener("click", () => {
-      const description = document.querySelector(".textarea").value.trim();
+      let description = document.querySelector(".textarea").value.trim().replace(/<.*?>/g, '');
       if (!description || !imageUrl.trim()) {
         alert("Добавьте изображение или текст");
         return;

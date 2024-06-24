@@ -77,21 +77,21 @@ export function renderAuthPageComponent({ appEl, setUser }) {
 
     document.getElementById("login-button").addEventListener("click", () => {
       setError("");
-
+    
       if (isLoginMode) {
-        const login = document.getElementById("login-input").value;
-        const password = document.getElementById("password-input").value;
-
+        const login = document.getElementById("login-input").value.replace(/<.*?>/g, '');
+        const password = document.getElementById("password-input").value.replace(/<.*?>/g, '');
+    
         if (!login) {
           alert("Введите логин");
           return;
         }
-
+    
         if (!password) {
           alert("Введите пароль");
           return;
         }
-
+    
         loginUser({
           login: login,
           password: password,
@@ -104,9 +104,10 @@ export function renderAuthPageComponent({ appEl, setUser }) {
             setError(error.message);
           });
       } else {
-        const login = document.getElementById("login-input").value;
-        const name = document.getElementById("name-input").value;
-        const password = document.getElementById("password-input").value;
+        const login = document.getElementById("login-input").value.replace(/<.*?>/g, '');
+        const name = document.getElementById("name-input").value.replace(/<.*?>/g, '');
+        const password = document.getElementById("password-input").value.replace(/<.*?>/g, '');
+    
         if (!name) {
           alert("Введите имя");
           return;
@@ -115,17 +116,17 @@ export function renderAuthPageComponent({ appEl, setUser }) {
           alert("Введите логин");
           return;
         }
-
+    
         if (!password) {
           alert("Введите пароль");
           return;
         }
-
+    
         if (!imageUrl) {
           alert("Не выбрана фотография");
           return;
         }
-
+    
         registerUser({
           login: login,
           password: password,
@@ -141,6 +142,7 @@ export function renderAuthPageComponent({ appEl, setUser }) {
           });
       }
     });
+    
 
     document.getElementById("toggle-button").addEventListener("click", () => {
       isLoginMode = !isLoginMode;
